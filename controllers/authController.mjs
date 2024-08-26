@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
+import { generateToken } from "../utils/generateToken.mjs";
 
 export const register = async (req, res) => {
   const { username, password, email } = req.body;
@@ -66,16 +67,7 @@ export const login = async (req, res) => {
     }
     // Generate JWT
 
-    const token = jwt.sign(
-      {
-        id: user.id,
-        isAdmin: true,
-      },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const token = generateToken(user.id);
 
     // Create a cookie and send to user
     return res
@@ -84,12 +76,65 @@ export const login = async (req, res) => {
         maxAge: 1000 * 60 * 60 * 24 * 7,
       })
       .status(200)
-      .json({ success: true, message: "User logged in successfully" });
+      .json({
+        success: true,
+        message: "User logged in successfully",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+        },
+      });
   } catch (err) {
     console.log("Error logging user: ", err);
     return res
       .status(500)
       .json({ success: false, error: "Error logging user" });
+  }
+};
+
+export const getUserInfo = async (req, res) => {
+  if (req.cookies && req.cookies.token) {
+    try {
+      jwt.verify(
+        req.cookies.token,
+        process.env.JWT_SECRET_KEY,
+        async (err, payload) => {
+          if (err) {
+            return res
+              .status(401)
+              .json({ success: false, message: "Not authorized" });
+          }
+          const id = payload.id;
+          const user = await prisma.user.findUnique({
+            where: {
+              id,
+            },
+          });
+          const token = generateToken(id);
+
+          return res
+            .cookie("token", token, {
+              httpOnly: false,
+              maxAge: 1000 * 60 * 60 * 24 * 7,
+            })
+            .status(200)
+            .json({
+              success: true,
+              message: "User logged in successfully",
+              user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+              },
+            });
+        }
+      );
+    } catch (err) {
+      console.log("Token not found. Login using username and password");
+    }
   }
 };
 
