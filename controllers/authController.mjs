@@ -69,6 +69,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
+        isAdmin: true,
       },
       process.env.JWT_SECRET_KEY,
       {
@@ -79,7 +80,7 @@ export const login = async (req, res) => {
     // Create a cookie and send to user
     return res
       .cookie("token", token, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 1000 * 60 * 60 * 24 * 7,
       })
       .status(200)
