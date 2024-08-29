@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import authRouter from "./Routes/authRoute.mjs";
+import authRouter from "./routes/authRoute.mjs";
 import cors from "cors";
+import userRouter from "./routes/userRoute.mjs";
 
 dotenv.config();
 const corsOptions = {
@@ -24,3 +25,4 @@ app.listen(port, () => {
 
 // Auth routes
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);

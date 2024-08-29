@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import prisma from "../lib/prisma.js";
+import prisma from "../lib/prisma.mjs";
 import jwt from "jsonwebtoken";
 import { generateToken } from "../utils/generateToken.mjs";
 
