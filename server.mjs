@@ -23,6 +23,6 @@ app.listen(port, () => {
   console.log(`Server started at port ${port}`);
 });
 
-// Auth routes
+// Auth routes    
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);

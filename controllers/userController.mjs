@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma.mjs";
+import { hashPassword } from "../utils/hashPassword.mjs";
 
 const getUserDetails = async (req, res) => {
   if (req.cookies && req.cookies.token) {
@@ -35,5 +36,31 @@ const getUserDetails = async (req, res) => {
     }
   }
 };
+const updateUserInfo = async (req, res) => {
+  if (req.user && req.user.id) {
+    const id = req.user.id;
+    const { password, ...userData } = req.body;
+    if (password) {
+      const hashedPassword = await hashPassword(password);
+      userData.password = hashedPassword;
+    }
+    try {
+      await prisma.user.update({
+        where: {
+          id,
+        },
+        data: userData,
+      });
+      return res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
+};
 
-export { getUserDetails };
+export { getUserDetails, updateUserInfo };
