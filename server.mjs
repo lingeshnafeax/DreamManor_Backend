@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoute.mjs";
 import cors from "cors";
 import userRouter from "./routes/userRoute.mjs";
+import postRouter from "./routes/postRoute.mjs";
 
 dotenv.config();
 const corsOptions = {
@@ -23,6 +24,7 @@ app.listen(port, () => {
   console.log(`Server started at port ${port}`);
 });
 
-// Auth routes    
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+
+app.use("/api/post", postRouter);
