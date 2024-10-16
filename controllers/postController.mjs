@@ -2,9 +2,30 @@ import prisma from "../lib/prisma.mjs";
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await prisma.post.findMany();
+    const {
+      city,
+      minPrice,
+      maxPrice,
+      category: property,
+      type,
+      bedroom,
+    } = req.query;
+    const filters = {
+      ...(city && { city }),
+      ...(property && { property }),
+      ...(type && { type }),
+      ...(bedroom && { bedroom: Number(bedroom) }),
+      price: {
+        gte: Number(minPrice) || 0,
+        ...(Number(maxPrice) ? { lte: Number(maxPrice) } : {}),
+      },
+    };
+    const posts = await prisma.post.findMany({
+      where: filters,
+    });
     return res.status(200).json({ success: true, data: posts });
   } catch (err) {
+    console.log(err);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
