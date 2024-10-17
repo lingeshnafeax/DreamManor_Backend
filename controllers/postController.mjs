@@ -9,6 +9,7 @@ export const getPosts = async (req, res) => {
       category: property,
       type,
       bedroom,
+      userId,
     } = req.query;
     const filters = {
       ...(city && { city }),
@@ -19,6 +20,7 @@ export const getPosts = async (req, res) => {
         gte: Number(minPrice) || 0,
         ...(Number(maxPrice) ? { lte: Number(maxPrice) } : {}),
       },
+      ...(userId && { userId }),
     };
     const posts = await prisma.post.findMany({
       where: filters,
